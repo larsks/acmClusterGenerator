@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "acmclustergenerator"
+version = "0.1.0"
+description = "Generate inputs for an ACM-driven baremetal OpenShift install"
+authors = ["Lars Kellogg-Stedman"]
+license = "GPLv3"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pydantic = "^1.8.1"
+PyYAML = "^5.4.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
