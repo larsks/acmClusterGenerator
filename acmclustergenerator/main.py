@@ -10,15 +10,33 @@ from . import model
 
 
 def str_representer(dumper, data):
+    '''Dump Python objects as YAML strings.
+
+    We use this for representing ipaddress and pydantic types (like
+    ipaddress.IPv4Address and pydantic.AnyUrl).
+    '''
+
     return dumper.represent_scalar('tag:yaml.org,2002:str', str(data))
 
 
 def maybe_use_block(dumper, data):
+    '''Use literal blocks for text containing newlines.
+
+    Prefer literal (|) blocks for text that contains newlines, which
+    generally results in more readable YAML output.
+    '''
+
     style = '|' if '\n' in data else None
     return dumper.represent_scalar('tag:yaml.org,2002:str', str(data), style=style)
 
 
 def fill_host_defaults(host, opf):
+    '''Convert an opfBaremetalHost into an icBaremetalHost.
+
+    Add bmc username and password from the defaults, if missing, and
+    set the host namespace.
+    '''
+
     if 'username' not in host.bmc:
         host.bmc.username = opf.spec.baremetal.bmcUsername
     if 'password' not in host.bmc:
@@ -31,6 +49,8 @@ def fill_host_defaults(host, opf):
 
 
 def register_representers():
+    '''Register custom YAML representers'''
+
     yaml.SafeDumper.add_representer(ipaddress.IPv4Network, str_representer)
     yaml.SafeDumper.add_representer(ipaddress.IPv4Address, str_representer)
     yaml.SafeDumper.add_representer(pydantic.AnyUrl, str_representer)
@@ -111,7 +131,11 @@ def main():
         )
     )
 
-
+    # Provider connections are only used by ACM to populate fields
+    # in the ClusterDeployment and install-config.yaml resources. Since
+    # we're generating everything ourselves, we don't need to create
+    # these resources.
+    #
     # providerconnection = model.providerConnection(
     #     baseDomain=opf.spec.baseDomain,
     #     libvirtURI=opf.spec.provisioning.libvirtURI,
@@ -138,7 +162,6 @@ def main():
     #         },
     #     )
     # )
-
 
     installconfig = model.InstallConfig(
         metadata=model.Metadata(
